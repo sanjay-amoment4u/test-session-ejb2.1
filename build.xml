@@ -9,8 +9,7 @@
 	<property name="classes.dir" value="${build.dir}/classes"/>		
 	<property name="jar.dir" value="${build.dir}/jar"/>
 	<property name="war.dir" value="${build.dir}/war"/>	
-	<property name="ear.dir" value="${build.dir}/ear"/>
-	<property name="exploded-app.dir" value="${build.dir}/exploded-app"/>
+	<property name="ear.dir" value="${build.dir}/ear"/>	
 	<property name="deploy.dir" value="C:/Personal/Softwares/jboss-5.0.1.GA/server/default/deploy"/>	    
 
     <target name="clean">
@@ -75,27 +74,5 @@
         </copy>    
     </target>
     
-	<!-- The below code deploy the ear file into the JBoss server in exploded (folder) form, deleting the below block of code does not effect this application -->
-    <target name="deploy-exp">
-        <mkdir dir="${exploded-app.dir}"/>          
-        <unzip src="${ear.dir}/${ant.project.name}.ear"  dest="${exploded-app.dir}/${ant.project.name}.ear"/>
-        
-        <delete quiet="true">
-			<fileset dir="${exploded-app.dir}/${ant.project.name}.ear" includes="${ant.project.name}.war"/>
-		</delete>
-		<unzip src="${war.dir}/${ant.project.name}.war" dest="${exploded-app.dir}/${ant.project.name}.ear/${ant.project.name}.war"/>
-		    		
-        <delete quiet="true">
-			<fileset dir="${deploy.dir}" includes="${ant.project.name}.ear"/>
-		</delete>
-		
-		<copy todir="${deploy.dir}" overwrite="yes">
-      		<fileset dir="${exploded-app.dir}" casesensitive="yes">
-        		<include name="**/*.*"/> 
-        	</fileset>  
-    	</copy>        	 
-   </target>		   
-   <!-- ends -->
-   
 </project>
 
