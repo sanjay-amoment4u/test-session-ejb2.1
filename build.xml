@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="TestSession" basedir="." default="end">
+		
+	<property name="src.dir" value="src/java"/>	
+	<property name="src.web.ui.dir" value="src/ui/jsps"/>
+	<property name="lib.dir" value="thirdparty/lib"/>	
+	<property name="dd.dir" value="src/dd"/>
+	<property name="build.dir" value="build"/>
+	<property name="classes.dir" value="${build.dir}/classes"/>		
+	<property name="jar.dir" value="${build.dir}/jar"/>
+	<property name="war.dir" value="${build.dir}/war"/>	
+	<property name="ear.dir" value="${build.dir}/ear"/>
+	<property name="exploded-app.dir" value="${build.dir}/exploded-app"/>
+	<property name="deploy.dir" value="C:/Personal/Softwares/jboss-5.0.1.GA/server/default/deploy"/>	    
+
+    <target name="clean">
+    	<echo message="Deleting the existing class files and folders (Jar and War) under - /${build.dir}"/>
+    	<delete quiet="true">
+    		<fileset dir="${build.dir}" includes="**/*.*"/>
+    	</delete>   
+    	<delete quiet="true">
+    		<fileset dir="${deploy.dir}" includes="${ant.project.name}.ear"/>
+    	</delete>          
+    </target>
+		        
+    <path id="classpath">
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+    </path>
+
+    <target name="compile">        
+        <mkdir dir="${classes.dir}"/>
+        <echo message="Compiling Java (Servlets and EJBs) files under - /${lib.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath"/>        
+    </target>
+    
+	<target name="build.jar" depends="compile">
+        <mkdir dir="${jar.dir}"/>
+        <echo message="Creating Jar file under - /${jar.dir}"/>
+        <jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}">    
+			<zipfileset dir="${dd.dir}/ejb-deployment-descriptor" includes="ejb-jar.xml,jboss.xml" prefix="META-INF"/>
+        </jar>		
+    </target>
+	
+    <target name="build.war" depends="build.jar">      		
+    	<mkdir dir="${war.dir}"/>
+    	<echo message="Creating War file under - /${war.dir}"/>
+		<war destfile="${war.dir}/${ant.project.name}.war" webxml="${dd.dir}/common-deployment-descriptor/web.xml">            
+			<zipfileset dir="${src.web.ui.dir}" prefix="WEB-INF/jsps" excludes="**/index.jsp" includes="**/*"/>	
+			<zipfileset dir="${src.web.ui.dir}" includes="**/index.jsp"/>						
+        </war>        			
+	</target>
+	
+	<target name="build.ear" depends="build.war"> 
+    	 <mkdir dir="${ear.dir}"/>
+    	 <echo message="Creating EAR file under - /${ear.dir}"/>
+	     <ear earfile="${ear.dir}/${ant.project.name}.ear" appxml="${dd.dir}/common-deployment-descriptor/application.xml">		 
+	     	<fileset dir="${war.dir}" includes="${ant.project.name}.war" />
+			<fileset dir="${jar.dir}" includes="${ant.project.name}.jar" />	     		     		    	     	
+	     </ear>
+    </target>
+	
+	<target name="end" depends="clean,deploy.app">  
+    	<echo message="Build Completed!"/>      	           	    
+    </target> 
+	
+	<target name="deploy.app" depends="build.ear">  
+		<delete includeemptydirs="true" quiet="true">
+		    	<fileset dir="${deploy.dir}/${ant.project.name}.ear"/>
+		</delete>      
+		
+        <copy todir="${deploy.dir}" overwrite="yes">
+      		<fileset dir="${ear.dir}" casesensitive="yes">
+        		<include name="*.ear"/> 
+        	</fileset>  
+        </copy>    
+    </target>
+    
+	<!-- The below code deploy the ear file into the JBoss server in exploded (folder) form, deleting the below block of code does not effect this application -->
+    <target name="deploy-exp">
+        <mkdir dir="${exploded-app.dir}"/>          
+        <unzip src="${ear.dir}/${ant.project.name}.ear"  dest="${exploded-app.dir}/${ant.project.name}.ear"/>
+        
+        <delete quiet="true">
+			<fileset dir="${exploded-app.dir}/${ant.project.name}.ear" includes="${ant.project.name}.war"/>
+		</delete>
+		<unzip src="${war.dir}/${ant.project.name}.war" dest="${exploded-app.dir}/${ant.project.name}.ear/${ant.project.name}.war"/>
+		    		
+        <delete quiet="true">
+			<fileset dir="${deploy.dir}" includes="${ant.project.name}.ear"/>
+		</delete>
+		
+		<copy todir="${deploy.dir}" overwrite="yes">
+      		<fileset dir="${exploded-app.dir}" casesensitive="yes">
+        		<include name="**/*.*"/> 
+        	</fileset>  
+    	</copy>        	 
+   </target>		   
+   <!-- ends -->
+   
+</project>
+

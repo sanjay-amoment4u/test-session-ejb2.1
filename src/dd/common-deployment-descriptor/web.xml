@@ -1,0 +1,13 @@
+<web-app>
+	
+	<servlet>
+		<servlet-name>ServletEJB_SBEx</servlet-name>
+		<servlet-class>com.ratan.controllers.TestEJBSessionServlet</servlet-class>		
+	</servlet>
+		
+	<servlet-mapping>
+		<servlet-name>ServletEJB_SBEx</servlet-name>
+		<url-pattern>/ejbSessionBean</url-pattern>
+	</servlet-mapping>		
+	
+</web-app> 
