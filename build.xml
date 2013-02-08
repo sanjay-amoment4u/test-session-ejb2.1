@@ -64,7 +64,7 @@
 	
 	<target name="deploy.app" depends="build.ear">  
 		<delete includeemptydirs="true" quiet="true">
-		    	<fileset dir="${deploy.dir}/${ant.project.name}.ear"/>
+		    <fileset dir="${deploy.dir}/${ant.project.name}.ear"/>
 		</delete>      
 		
         <copy todir="${deploy.dir}" overwrite="yes">
